@@ -31,14 +31,19 @@ opcao    - recebe uma array com os valores corretos para o usuario digitar (As o
 msg      - recebe a mensagem a ser apresentada ao usuario. Valor padrao: "Escolha uma opção: "
 msg_erro - recebe a mensagem que sera apresentada caso o usuario nao insira uma das opcoes definidas no parametro opcoes. Valor padrao:"Opção inválida!"
 */
-function pergunta(opcao, msg="Escolha uma opção: ", msg_erro="Opção inválida!"){
-    return readline.question(msg, {limit: opcao, limitMessage: `\x1b[31m\x1b[1m${msg_erro}\x1b[0m\n`});
+function padrao(tipo, opcoes=[0,1,2], msg="Escolha uma opção: ", erro="Opção inválida!"){
+    if (tipo == "titulo") {
+        return `\x1b[107m\x1b[30m\x1b[1m          ${msg}          \x1b[0m\n`;
+    } else if (tipo == "positivo") {
+        return `\x1b[92m\x1b[1m${msg}\x1b[0m\n`;
+    } else if (tipo == "erro") {
+        return `\x1b[31m\x1b[1m${msg}\x1b[0m\n`;
+    }else if (tipo == "pergunta") {
+        return readline.question(msg, {limit: opcoes, limitMessage: `\x1b[31m\x1b[1m${erro}\x1b[0m\n`});
+    }
 }
 
-// Formatacao dos titulos
-function titulo(msg){
-    return `\x1b[107m\x1b[1m          ${msg}          \x1b[0m\n`
-}
+padrao("titulo", "casa")
 
 //==================================================================================================================
 
@@ -70,7 +75,7 @@ acervo = [livro1, livro2];
 
 while (loop) {
     console.clear(); // Limpa a tela do terminal toda vez que o loop inicia
-    console.log(titulo("CATALOGO DE LIVROS"));
+    console.log(padrao("titulo", "CATALOGO DE LIVROS"));
     console.log("1 - Listar livros registrados");
     console.log("2 - Cadastrar novo livro");
     console.log("3 - Buscar livro");
@@ -78,15 +83,14 @@ while (loop) {
     console.log("5 - Remover livro");
     console.log("0 - Sair do sistema\n");
     
-    op = pergunta([0,1,2,3,4,5]);
+    op = padrao("pergunta",[0,1,2,3,4,5]);
 
     nao_encontrou = true; //este valor deve ser true a cada início do loop, para indicar quando um livro cadastrado não for encontrado durante a busca, alteração e remoção.
 
     switch (op) {
         case "1":
             console.clear();
-            console.log("\n__________LISTAGEM DOS LIVROS CADASTRADOS__________\n");
-
+            console.log(padrao("titulo"));
             for (const livro of acervo){
                 console.log(`${livro.titulo}`.toUpperCase());
                 console.log("------------------------------------------------------------------");
@@ -98,7 +102,8 @@ while (loop) {
                 console.log(`ISBN:            ${livro.isbn}`);
                 console.log(`assuntos:        ${livro.assuntos}\n\n`);
             }
-            readline.keyInPause();
+            //readline.keyInPause();
+            readline.question('ENTER para continuar...', {hideEchoBack: true, mask: ''});
             break;
 
         case "2":
