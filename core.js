@@ -26,16 +26,20 @@ let loop = true;
 
 // FUNCOES AUXILIARES
 
-/* Automatiza a formatacao de perguntas ao usuario.
-opcao    - recebe uma array com os valores corretos para o usuario digitar (As opcoes do menu)
-msg      - recebe a mensagem a ser apresentada ao usuario. Valor padrao: "Escolha uma opção: "
-msg_erro - recebe a mensagem que sera apresentada caso o usuario nao insira uma das opcoes definidas no parametro opcoes. Valor padrao:"Opção inválida!"
-*/
+/** Automatiza a formatacao de perguntas ao usuario.
+ * @param {string} tipo - Define o tipo de msg. Valores possiveis: titulo, positivo, aviso, erro, pergunta
+ * @param {lista} opcoes - recebe uma array com os valores corretos para o usuario digitar: PADRAO: [0,1,2]
+ * @param {string} msg - recebe a mensagem a ser apresentada ao usuario. PADRAO: "Escolha uma opção: "
+ * @param {string} erro - Mensagem que sera apresentada caso o usuario nao insira uma das opcoes definidas no parametro opcoes. PADRAO: "Opção inválida!"
+**/
+
 function padrao(tipo, opcoes=[0,1,2], msg="Escolha uma opção: ", erro="Opção inválida!"){
     if (tipo == "titulo") {
         return `\x1b[107m\x1b[30m\x1b[1m          ${msg}          \x1b[0m\n`;
     } else if (tipo == "positivo") {
         return `\x1b[92m\x1b[1m${msg}\x1b[0m\n`;
+    } else if (tipo == "aviso") {
+        return `\x1b[33m\x1b[1m${msg}\x1b[0m\n`;
     } else if (tipo == "erro") {
         return `\x1b[31m\x1b[1m${msg}\x1b[0m\n`;
     }else if (tipo == "pergunta") {
@@ -43,7 +47,7 @@ function padrao(tipo, opcoes=[0,1,2], msg="Escolha uma opção: ", erro="Opção
     }
 }
 
-padrao("titulo", "casa")
+
 
 //==================================================================================================================
 
@@ -75,7 +79,7 @@ acervo = [livro1, livro2];
 
 while (loop) {
     console.clear(); // Limpa a tela do terminal toda vez que o loop inicia
-    console.log(padrao("titulo", "CATALOGO DE LIVROS"));
+    console.log(padrao("titulo",[], "CATALOGO DE LIVROS"));
     console.log("1 - Listar livros registrados");
     console.log("2 - Cadastrar novo livro");
     console.log("3 - Buscar livro");
@@ -90,7 +94,7 @@ while (loop) {
     switch (op) {
         case "1":
             console.clear();
-            console.log(padrao("titulo"));
+            console.log(padrao("titulo",[],"LISTAR LIVROS REGISTRADOS"));
             for (const livro of acervo){
                 console.log(`${livro.titulo}`.toUpperCase());
                 console.log("------------------------------------------------------------------");
@@ -102,21 +106,18 @@ while (loop) {
                 console.log(`ISBN:            ${livro.isbn}`);
                 console.log(`assuntos:        ${livro.assuntos}\n\n`);
             }
-            //readline.keyInPause();
             readline.question('ENTER para continuar...', {hideEchoBack: true, mask: ''});
             break;
 
         case "2":
             console.clear();
-            console.log("__________CADASTRO DE LIVRO__________\n");
+            console.log(padrao(titulo,[],"CADASTRO DE LIVRO"));
             while(loop){
                 tituloLivro = readline.question("Digite o titulo do livro: ");
                 if(tituloLivro.length !==0 ){
                     break;
                 }else{
-                    console.log("------------------------------------------------------")
-                    console.log("Campo Obrigatorio! Por favor forneça o Titulo do livro")
-                    console.log("------------------------------------------------------")
+                    console.log(padrao("erro",[],"","Campo Obrigatorio!\nPor favor, forneça o Titulo do livro"));
                 }
             }
             autorLivro = readline.question("Digite o nome do autor do livro: ");
@@ -137,13 +138,9 @@ while (loop) {
                 if(isbnLivro.length !==0 && nao_encontrou === true){
                     break;
                 } else if(nao_encontrou === false) {
-                    console.log("----------------------------------------------------");
-                    console.log("                ISBN ja cadastrado!");
-                    console.log("----------------------------------------------------");
+                    console.log(padrao("aviso","","O ISBN informado, já esta cadastrado!"));
                 }else{
-                    console.log("----------------------------------------------------");
-                    console.log("Campo Obrigatorio! Por favor forneça o ISBN do livro.");
-                    console.log("----------------------------------------------------");
+                    console.log(padrao("aviso","","Campo Obrigatorio! Por favor forneça o ISBN do livro."));
                 }
             }
 
@@ -153,9 +150,7 @@ while (loop) {
                     assuntosLivro = assuntosLivro.split(',');
                     break;
                 } else {
-                    console.log("-----------------------------------------")
-                    console.log("Pelo menos um assunto deve ser fornecido.");
-                    console.log("-----------------------------------------")
+                    console.log(padrao("aviso","","Pelo menos um assunto deve ser fornecido."));
                 }
             }
             const livro = {
@@ -170,7 +165,7 @@ while (loop) {
             }
 
             acervo.push(livro);
-            console.log("\n\tLivro cadastrado com sucesso!\n");
+            console.log(padrao("aviso","","Livro cadastrado com sucesso!"));
             console.log(`${livro.titulo}`.toUpperCase());
             console.log("------------------------------------------------------------------");
             console.log(`Autor principal: ${livro.autor}`);
@@ -181,7 +176,7 @@ while (loop) {
             console.log(`ISBN:            ${livro.isbn}`);
             console.log(`Assuntos:        ${livro.assuntos}\n\n`);
 
-            readline.keyInPause();
+            readline.question('ENTER para continuar...', {hideEchoBack: true, mask: ''});
             break;
 
         case "3":
@@ -189,11 +184,11 @@ while (loop) {
                 console.clear();
                 continuar = true;
                 nao_encontrou = true;
-                console.log(titulo("__________BUSCAR LIVRO__________"));
+                console.log(padrao("titulo","","BUSCAR LIVRO"));
                 isbnBusca = readline.question('Digite o ISBN do livro: ');
                 for (const livro of acervo) {
                     if (livro.isbn === isbnBusca) {
-                        console.log(`\n\x1b[92mLivro encontrado:\x1b[0m\n`);
+                        console.log(padrao("positivo","","Livro encontrado:"));
                         console.log(`${livro.titulo}`.toUpperCase());
                         console.log("------------------------------------------------------------------");
                         console.log(`Autor principal: ${livro.autor}`);
@@ -207,10 +202,9 @@ while (loop) {
                     }
                 }
                 if (nao_encontrou) { 
-                    console.log(`\n\x1b[31m\x1b[1mNenhum registro com o ISBN ${isbnBusca} foi encontrado.\x1b[0m`);
+                    console.log("aviso","",`Nenhum registro com o ISBN ${isbnBusca} foi encontrado`);
                 }
-                console.log("\nRealizar uma nova busca?\n1 - Sim\n2 - Não\n")
-                op = pergunta([1,2]);
+                op = padrao("pergunta",[1,2],"\nRealizar uma nova busca?\n1 - Sim\n2 - Não\n");
                 switch (op) {
                     case "1":
                         break;
@@ -222,13 +216,13 @@ while (loop) {
             break;
         case "4":
             console.clear();
-            console.log("\n__________ALTERANDO CADASTRO DE LIVRO__________\n");
+            console.log(padrao("titulo","","ALTERANDO CADASTRO DE LIVRO"));
             isbnBusca = readline.question('Digite o ISBN do livro: ');
             for (const livro of acervo) {
                 if (livro.isbn === isbnBusca) {
                     posicao = acervo.indexOf(livro);
                     livro_alterado = acervo[posicao];
-                    console.log('\n\tLivro encontrado:\n');
+                    console.log(padrao("aviso","","Livro encontrado:"));
                     console.log(`${livro.titulo}`.toUpperCase());
                     console.log("------------------------------------------------------------------");
                     console.log(`Autor principal: ${livro.autor}`);
@@ -240,20 +234,8 @@ while (loop) {
                     console.log(`assuntos:        ${livro.assuntos}\n\n`);
 
                     do {
-                        op = readline.questionInt(`
-O que deseja alterar?
----------------------
-1. Titulo
-2. Autor Principal
-3. Outros autores
-4. Edicao
-5. Publicacao
-6. Paginas 
-7. ISBN
-8. Assuntos
-0. Sair
-____________________
-=> `);
+                        console.log("O que deseja alterar?\n\n1 - Titulo\n2 - Autor Principal\n3 - Outros autores\n4 - Edição\n5 - Publicacao\n6 - Paginas\n7 - ISBN\n8 - Assuntos\n0 - Sair\n");
+                        op = padrao("pergunta",[0,1,2,3,4,5,6,7,8]);
 
                         switch (op) {
                             case 1:
@@ -264,12 +246,10 @@ ____________________
                                         acervo[posicao] = livro_alterado;
                                         break;
                                     }else{
-                                        console.log("------------------------------------------------------")
-                                        console.log("Campo Obrigatorio! Por favor forneça o Titulo do livro")
-                                        console.log("------------------------------------------------------")
+                                        console.log(padrao("aviso","","Campo Obrigatorio! Por favor forneça o Titulo do livro"))
                                     }
                                 }
-                                console.log('\n\tAlteracao realizada com sucesso!\n');
+                                console.log(padrao("positivo","","Alteracao realizada com sucesso!"));
                                 console.log(`${livro.titulo}`.toUpperCase());
                                 console.log("------------------------------------------------------------------");
                                 console.log(`Autor principal: ${livro.autor}`);
@@ -280,18 +260,14 @@ ____________________
                                 console.log(`ISBN:            ${livro.isbn}`);
                                 console.log(`assuntos:        ${livro.assuntos}\n\n`);
                                 
-                            
-                                do {
-                                    continuar = readline.question('\nDeseja continuar alterando este livro? <sim / nao> : ');
-                                    continuar = continuar.toLowerCase();
-                                    if (continuar == 'sim') {
+                                //do {
+                                    continuar = padrao("pergunta",[1,2],"\nDeseja continuar alterando este livro?\n1 - Sim\n2 - Não\n");
+                                    if (continuar == 1) {
                                         alterar = true;
-                                    } else if (continuar == 'nao') {
+                                    } else if (continuar == 2) {
                                         alterar = false;
-                                    } else {
-                                        console.log('\nERRO: Resposta invalida!');
                                     }
-                                } while (continuar != 'sim' && continuar != 'nao');
+                               // } while (continuar != 'sim' && continuar != 'nao');
                                 break;
 
                             case 2:
@@ -299,7 +275,7 @@ ____________________
                                 livro_alterado.autor = autorLivro;
                                 acervo[posicao] = livro_alterado;
 
-                                console.log('\n\tAlteracao realizada com sucesso!\n');
+                                console.log(padrao("positivo","","Alteracao realizada com sucesso!"));
                                 console.log(`${livro.titulo}`.toUpperCase());
                                 console.log("------------------------------------------------------------------");
                                 console.log(`Autor principal: ${livro.autor}`);
@@ -310,18 +286,12 @@ ____________________
                                 console.log(`ISBN:            ${livro.isbn}`);
                                 console.log(`assuntos:        ${livro.assuntos}\n\n`);
 
-                            
-                                do {
-                                    continuar = readline.question('\nDeseja continuar alterando este livro? <sim / nao> : ');
-                                    continuar = continuar.toLowerCase();
-                                    if (continuar == 'sim') {
+                                    continuar = padrao("pergunta",[1,2],"\nDeseja continuar alterando este livro?\n1 - Sim\n2 - Não\n");
+                                    if (continuar == 1) {
                                         alterar = true;
-                                    } else if (continuar == 'nao') {
+                                    } else if (continuar == 2) {
                                         alterar = false;
-                                    } else {
-                                        console.log('\nResposta invalida!');
                                     }
-                                } while (continuar != 'sim' && continuar != 'nao');
                                 break;
                             
                             case 3:
@@ -552,7 +522,7 @@ ____________________
             }
             if (nao_encontrou) {
                 console.log('\nLivro nao encontrado!\n');
-                readline.keyInPause();
+                readline.question('ENTER para continuar...', {hideEchoBack: true, mask: ''});
             }
             break;
 
@@ -591,7 +561,7 @@ ____________________
             if (nao_encontrou) {
                 console.log('\nLivro nao encontrado!\n');
             }
-            readline.keyInPause();
+            readline.question('ENTER para continuar...', {hideEchoBack: true, mask: ''});
             break;
         case "0":
             console.log("\nFechando sistema de catálogo...");
